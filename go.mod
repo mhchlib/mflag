@@ -1,4 +1,4 @@
-module mflag
+module github.com/mhchlib/mflag
 
 go 1.15
 

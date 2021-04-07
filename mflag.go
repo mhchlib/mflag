@@ -1,22 +1,15 @@
-package main
-
-import (
-	"flag"
-	"fmt"
-	"os"
-	"strings"
-)
+package mflag
 
 var Mflags map[string][]*Mflag
 
 type Mflag struct {
-	MflagSet flag.FlagSet
-	FlagName string
+	MFlagSet
+	FlagName    string
 	Disturbuilt string
-	PluginType	string
+	PluginType  string
 }
 
-func BindPlugin(mflag *Mflag,pluginType string)  {
+func BindPlugin(mflag *Mflag, pluginType string) {
 	mflag.PluginType = pluginType
 	if Mflags == nil {
 		Mflags = make(map[string][]*Mflag)
@@ -24,41 +17,15 @@ func BindPlugin(mflag *Mflag,pluginType string)  {
 	Mflags[pluginType] = append(Mflags[pluginType], mflag)
 }
 
-func NewMflag(flag flag.FlagSet,FlagName,Disturbuilt string) *Mflag {
-	return &Mflag{
-		MflagSet: flag,
-		FlagName: FlagName,
+func NewMflag(flag FlagSet, FlagName, Disturbuilt string) *Mflag {
+	f := &Mflag{
+		FlagName:    FlagName,
 		Disturbuilt: Disturbuilt,
 	}
+	f.FlagSet = flag
+	return f
 }
 
-
-func PrintByPlugin()  {
-	if Mflags == nil {
-		Mflags = make(map[string][]*Mflag)
-	}
-	for s, mflags := range Mflags {
-		fmt.Fprint(os.Stderr,s+"\n")
-		for _, mflag := range mflags {
-			fmt.Println(" " + mflag.FlagName + " \t"+mflag.Disturbuilt)
-			mflag.printDefaults()
-		}
-	}
-
-}
-
-func (m *Mflag) printDefaults() {
-	m.MflagSet.VisitAll(func(flag2 *flag.Flag) {
-		s := fmt.Sprintf("  -%s", flag2.Name)
-		name, usage := flag.UnquoteUsage(flag2)
-		if len(name) > 0 {
-			s += " " + name
-		}
-		s += "\t"
-		s += strings.ReplaceAll(usage, "\n", "\n    \t")
-		fmt.Fprint(m.MflagSet.Output(), s, "\n")
-	})
-}
-func (m *Mflag) PrintDefaults() {
-	m.MflagSet.PrintDefaults()
+func FlagPlugin(pluginType string, name string, usage string) *MFlagPlugin {
+	return CommandLine.FlagPlugin(pluginType, name, usage)
 }
